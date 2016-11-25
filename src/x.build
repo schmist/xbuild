@@ -1,0 +1,7 @@
+[
+    {
+        "type": "CC_EXEC",
+        "name": "main",
+        "srcs": ["hello/*.c","hello/*.cpp"]
+    }
+]

@@ -1,38 +1,57 @@
+import java.io.IOException;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
- * Created by Stefan on 23.11.2016.
+ * Created by Stefan on 11/25/2016.
  */
-public abstract class Binary {
+public class Binary {
+    public enum BinaryType {CC_EXEC, CC_LIB}
+    private List<String> srcs;
+    private String name;
+    private BinaryType type;
+    private List<Path> fileList;
+    private Compiler compiler;
 
-    private List<String> sources;
-    private String root;
-    private CompilerSuite compilerSuite;
-
-    public Binary(CompilerSuite compilerSuite) {
-        this.sources = new ArrayList<>();
-        this.compilerSuite = compilerSuite;
+    public Binary() {
+        fileList = new ArrayList<>();
     }
 
-    public void addSource(String source) {
-        this.sources.add(source);
+    public List<String> getSrcs() {
+        return srcs;
     }
 
-    public void addSources(List<String> sources) {
-        this.sources.addAll(sources);
+    public String getName() {
+        return name;
     }
 
-    public void setRoot(String root) {
-        this.root = root;
+    public List<Path> getFileList() {
+        return fileList;
     }
 
-    public void compile() {
-        for (String source : this.sources) {
-            compilerSuite.compile(source);
+    public void assignCompiler(Toolchain[] toolchains, String cpu) {
+        switch(this.type) {
+            case CC_LIB:
+            case CC_EXEC:
+                this.compiler = Compiler.createCompiler(Toolchain.getToolchain(toolchains, cpu),Compiler.CompilerType.GCC);
         }
     }
 
-    public abstract void link();
+    private void findFiles() {
+        for(String src: this.srcs) {
+            PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:./"+src);
+            try (Stream<Path> stream = Files.walk(Paths.get("."))) {
+                stream.filter(pathMatcher::matches).forEach(_src->this.fileList.add(_src.normalize()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
+    public void compile() {
+        this.findFiles();
+        this.fileList.forEach(this.compiler::compile);
+    }
 }

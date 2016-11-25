@@ -1,25 +1,31 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Path;
 
 /**
- * Created by Stefan on 23.11.2016.
+ * Created by Stefan on 11/25/2016.
  */
-public class Compiler {
+public abstract class Compiler {
 
-    private List<String> flags;
-    private String compiler;
+    public enum CompilerType {GCC}
 
-    public Compiler(String compiler) {
-        this.compiler = compiler;
-        this.flags = new ArrayList<>();
+    public abstract void compile(Path src);
+
+    public static Compiler createCompiler(CompilerType type) {
+        return createCompiler(null,type);
     }
 
-    public void compile(String source) {
-        System.out.println(source);
-        System.out.println(this.flags);
+    public static Compiler createCompiler(Toolchain toolchain, CompilerType type) {
+        switch(type) {
+            case GCC:
+                if (toolchain==null) {
+                    //TODO log error
+                    return null;
+                } else {
+                    return new GccCompiler(toolchain);
+                }
+            default:
+                //should not happen
+                return null;
+        }
     }
 
-    public List<String> getFlags() {
-        return flags;
-    }
 }

@@ -1,0 +1,8 @@
+[
+    {
+        "cpus": ["stm32f0"],
+        "prefix": "arm-",
+        "cflags": [],
+        "cxxflags": []
+    }
+]
