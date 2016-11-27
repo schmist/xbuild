@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.stream.Stream;
 
 /**
@@ -50,8 +51,9 @@ public class Binary {
         }
     }
 
-    public void compile() {
+    public void compile(Executor executor) {
         this.findFiles();
-        this.fileList.forEach(this.compiler::compile);
+        System.out.println(this.fileList);
+        this.fileList.forEach((src)->executor.execute(()->this.compiler.compile(src)));
     }
 }

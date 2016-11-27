@@ -2,6 +2,6 @@
     {
         "type": "CC_EXEC",
         "name": "main",
-        "srcs": ["hello/*.c","hello/*.cpp"]
+        "srcs": ["libvlc/*.{c,cpp}","libvlc/stm32/*.{c,cpp}"]
     }
 ]
