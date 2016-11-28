@@ -2,6 +2,8 @@
     {
         "type": "CC_EXEC",
         "name": "main",
-        "srcs": ["libvlc/*.{c,cpp}","libvlc/stm32/*.{c,cpp}"]
+        "srcs": ["libvlc/*.{c,cpp}","libvlc/stm32/*.{c,cpp}"],
+        "incl": ["C:\\Users\\Stefan\\workspace\\vlc_apps\\libvlc\\include","C:\\Tools\\libopencm3\\include"],
+        "flags": "std"
     }
 ]

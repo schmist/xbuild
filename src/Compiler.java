@@ -7,7 +7,7 @@ public abstract class Compiler {
 
     public enum CompilerType {GCC}
 
-    public abstract void compile(Path src);
+    public abstract void compile(Path src, Flags flags, Path output);
 
     public static Compiler createCompiler(CompilerType type) {
         return createCompiler(null,type);

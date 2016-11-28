@@ -8,8 +8,6 @@ import java.util.List;
 public class Toolchain {
     private String prefix;
     private List<String> cpus = new ArrayList<>();
-    private List<String> cFlags = new ArrayList<>();
-    private List<String> cxxFlags = new ArrayList<>();
 
     private Toolchain(String cpu) {
         this.cpus.add(cpu);
@@ -17,14 +15,6 @@ public class Toolchain {
 
     public String getPrefix() {
         return prefix;
-    }
-
-    public List<String> getcFlags() {
-        return cFlags;
-    }
-
-    public List<String> getCxxFlags() {
-        return cxxFlags;
     }
 
     public static Toolchain createDefault() {

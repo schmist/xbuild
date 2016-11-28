@@ -1,8 +1,6 @@
 [
     {
         "cpus": ["stm32f0"],
-        "prefix": "arm-none-eabi-",
-        "cflags": [],
-        "cxxflags": []
+        "prefix": "arm-none-eabi-"
     }
 ]

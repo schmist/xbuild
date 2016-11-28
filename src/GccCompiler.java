@@ -11,17 +11,13 @@ import java.util.List;
 public class GccCompiler extends Compiler {
 
     private String prefix;
-    private List<String> cFlags;
-    private List<String> cxxFlags;
 
     public GccCompiler(Toolchain toolchain) {
         this.prefix = toolchain.getPrefix();
-        this.cFlags = toolchain.getcFlags();
-        this.cxxFlags = toolchain.getCxxFlags();
     }
 
     @Override
-    public void compile(Path src) {
+    public void compile(Path src, Flags flags, Path output) {
         System.out.println("Compiling: "+src);
         String cExtension = ".c";
         String cppExtension = ".cpp";
@@ -32,22 +28,16 @@ public class GccCompiler extends Compiler {
         String objectFile ="";
         if (cFileMatcher.matches(src)) {
             compilerCmd += "gcc";
-            objectFile += src.toString().replace(cExtension,".o");
+            cmdList.add(compilerCmd);
+            cmdList.addAll(flags.getConlyFlags());
+            objectFile += output.resolve(src.getFileName()).toString().replace(cExtension,".o");
         } else if (cppFileMatcher.matches(src)) {
             compilerCmd += "g++";
-            objectFile += src.toString().replace(cppExtension,".o");
+            cmdList.add(compilerCmd);
+            cmdList.addAll(flags.getCxxFlags());
+            objectFile += output.resolve(src.getFileName()).toString().replace(cppExtension,".o");
         }
-
-        cmdList.add(compilerCmd);
-        //cmdList.add("-v");
-        if (compilerCmd.endsWith("g++")) {
-            cmdList.add("-std=c++11");
-        }
-        cmdList.add("-DSTM32F0");
-        cmdList.add("-ID:\\workspace\\vlc_apps\\libvlc\\include");
-        cmdList.add("-IC:\\Tools\\libopencm3\\include");
-        cmdList.add("-mcpu=cortex-m0");
-        cmdList.add("-mthumb");
+        cmdList.addAll(flags.getCFlags());
         cmdList.add("-c");
         cmdList.add(src.toString());
         cmdList.add("-o");

@@ -1,0 +1,38 @@
+[
+    {
+        "name": "std",
+        "cflags": [
+                "-Os",
+                "-DSTM32F0",
+                "-msoft-float",
+                "-mthumb",
+                "-mcpu=cortex-m0",
+                "-Wall",
+                "-Wundef",
+                "-Wextra",
+                "-Wredundant-decls",
+                "-Wshadow",
+                "-fno-common",
+                "-ffunction-sections",
+                "-fdata-sections"
+                ],
+        "conlyflags": [
+                "-Wimplicit-function-declaration",
+                "-Wmissing-prototypes",
+                "-Wstrict-prototypes"
+                ],
+        "cxxflags": [
+                "-std=c++11",
+                "-Weffc++",
+                "-Wno-non-virtual-dtor"
+                ],
+        "lflags": [
+                "-mthumb",
+                "-mcpu=cortex-m0",
+                "-nostartfiles",
+                "-lstdc++",
+                "--specs=nosys.specs",
+                "-Wl,--gc-sections"
+                ]
+    }
+]

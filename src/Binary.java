@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.stream.Stream;
@@ -11,10 +12,14 @@ import java.util.stream.Stream;
 public class Binary {
     public enum BinaryType {CC_EXEC, CC_LIB}
     private List<String> srcs;
+    private List<String> incl;
     private String name;
     private BinaryType type;
     private List<Path> fileList;
     private Compiler compiler;
+    private String flags;
+    private Flags flagsContainer;
+    private Path output = Paths.get("xbuild");
 
     public Binary() {
         fileList = new ArrayList<>();
@@ -40,6 +45,11 @@ public class Binary {
         }
     }
 
+    public void assignFlags(Flags[] flags) {
+        this.flagsContainer = Arrays.stream(flags).filter(item->item.getName().equals(this.flags)).findFirst().orElse(null);
+        this.prepareIncludes();
+    }
+
     private void findFiles() {
         for(String src: this.srcs) {
             PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:./"+src);
@@ -51,9 +61,26 @@ public class Binary {
         }
     }
 
+    private void prepareIncludes() {
+        if (this.flagsContainer==null) {
+            this.flagsContainer = new Flags();
+        }
+        this.incl.forEach(item->{
+            Path include = Paths.get(item);
+            this.flagsContainer.addCFlag("-I"+include.toString());
+        });
+    }
+
     public void compile(Executor executor) {
         this.findFiles();
         System.out.println(this.fileList);
-        this.fileList.forEach((src)->executor.execute(()->this.compiler.compile(src)));
+        if (!Files.isDirectory(output)) {
+            try {
+                Files.createDirectory(output);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        this.fileList.forEach((src)->executor.execute(()->this.compiler.compile(src,this.flagsContainer,output)));
     }
 }
