@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 
 /**
@@ -71,7 +72,7 @@ public class Binary {
         });
     }
 
-    public void compile(Executor executor) {
+    public void compile(ExecutorService executor) {
         this.findFiles();
         System.out.println(this.fileList);
         if (!Files.isDirectory(output)) {
@@ -82,5 +83,8 @@ public class Binary {
             }
         }
         this.fileList.forEach((src)->executor.execute(()->this.compiler.compile(src,this.flagsContainer,output)));
+        executor.shutdown();
+        while (!executor.isTerminated());
+
     }
 }

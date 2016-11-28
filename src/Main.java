@@ -23,8 +23,6 @@ public class Main {
             binary.assignFlags(flags);
             binary.compile(executor);
         });
-        executor.shutdown();
-        while (!executor.isTerminated());
         System.out.println("all done!");
     }
 }
