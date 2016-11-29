@@ -17,6 +17,7 @@ public class Binary {
     private String name;
     private BinaryType type;
     private List<Path> fileList;
+    private List<Path> objList;
     private Compiler compiler;
     private String flags;
     private Flags flagsContainer;
@@ -24,6 +25,7 @@ public class Binary {
 
     public Binary() {
         fileList = new ArrayList<>();
+        objList = new ArrayList<>();
     }
 
     public List<String> getSrcs() {
@@ -82,9 +84,11 @@ public class Binary {
                 e.printStackTrace();
             }
         }
-        this.fileList.forEach((src)->executor.execute(()->this.compiler.compile(src,this.flagsContainer,output)));
+        this.fileList.forEach((src)->executor.execute(()->this.objList.add(this.compiler.compile(src,this.flagsContainer,output))));
         executor.shutdown();
         while (!executor.isTerminated());
-
+        if (this.type==BinaryType.CC_LIB) {
+            this.compiler.archive(this.objList,output.resolve("lib"+this.name+".a"));
+        }
     }
 }

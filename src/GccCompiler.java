@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class GccCompiler extends Compiler {
     }
 
     @Override
-    public void compile(Path src, Flags flags, Path output) {
+    public Path compile(Path src, Flags flags, Path output) {
         System.out.println("Compiling: "+src);
         String cExtension = ".c";
         String cppExtension = ".cpp";
@@ -49,6 +50,28 @@ public class GccCompiler extends Compiler {
             Process process = builder.start();
             process.waitFor();
             System.out.println("Compiling: "+src+" done!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return Paths.get(objectFile);
+    }
+
+    @Override
+    public void archive(List<Path> objs, Path output) {
+        List<String> cmdList = new ArrayList<>();
+        cmdList.add(this.prefix+"ar");
+        cmdList.add("rcs");
+        cmdList.add(output.toString());
+        objs.forEach(obj->cmdList.add(obj.toString()));
+        ProcessBuilder builder = new ProcessBuilder(cmdList);
+        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        builder.redirectError(ProcessBuilder.Redirect.INHERIT);
+        try {
+            Process process = builder.start();
+            process.waitFor();
+            System.out.println("Archiving done!");
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {

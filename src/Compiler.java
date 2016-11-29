@@ -1,4 +1,5 @@
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Created by Stefan on 11/25/2016.
@@ -7,7 +8,9 @@ public abstract class Compiler {
 
     public enum CompilerType {GCC}
 
-    public abstract void compile(Path src, Flags flags, Path output);
+    public abstract Path compile(Path src, Flags flags, Path output);
+
+    public abstract void archive(List<Path> objs, Path output);
 
     public static Compiler createCompiler(CompilerType type) {
         return createCompiler(null,type);
