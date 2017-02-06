@@ -1,8 +1,16 @@
 [
     {
+        "type": "CC_LIB",
+        "name": "vlc",
+        "srcs": ["vlc_apps/libvlc/*.{c,cpp}","vlc_apps/libvlc/stm32/*.{c,cpp}"],
+        "incl": ["C:\\Users\\Stefan\\workspace\\vlc_apps\\libvlc\\include","C:\\Tools\\libopencm3\\include"],
+        "flags": "std"
+    },
+    {
         "type": "CC_EXEC",
-        "name": "main",
-        "srcs": ["libvlc/*.{c,cpp}","libvlc/stm32/*.{c,cpp}"],
+        "name": "app",
+        "srcs": ["vlc_apps/*.{c,cpp}"],
+        "deps": [{"name":"vlc"},{"name":"opencm3_stm32f0", "path":"C:\\Tools\\libopencm3"}],
         "incl": ["C:\\Users\\Stefan\\workspace\\vlc_apps\\libvlc\\include","C:\\Tools\\libopencm3\\include"],
         "flags": "std"
     }

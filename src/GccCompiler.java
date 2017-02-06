@@ -78,4 +78,15 @@ public class GccCompiler extends Compiler {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void link(List<Path> objs, List<Dependency> deps, Path output) {
+        List<String> cmdList = new ArrayList<>();
+        objs.forEach(obj->cmdList.add(obj.toString()));
+        deps.forEach(dep->{
+            cmdList.add("-L"+dep.getPath());
+            cmdList.add("-l"+dep.getName());
+        });
+        System.out.println(cmdList);
+    }
 }

@@ -12,6 +12,8 @@ public abstract class Compiler {
 
     public abstract void archive(List<Path> objs, Path output);
 
+    public abstract void link(List<Path> objs, List<Dependency> deps, Path output);
+
     public static Compiler createCompiler(CompilerType type) {
         return createCompiler(null,type);
     }

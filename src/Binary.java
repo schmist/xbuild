@@ -1,4 +1,7 @@
+import com.google.gson.*;
+
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +17,7 @@ public class Binary {
     public enum BinaryType {CC_EXEC, CC_LIB}
     private List<String> srcs;
     private List<String> incl;
+    private List<Dependency> deps;
     private String name;
     private BinaryType type;
     private List<Path> fileList;
@@ -21,7 +25,7 @@ public class Binary {
     private Compiler compiler;
     private String flags;
     private Flags flagsContainer;
-    private Path output = Paths.get("xbuild");
+    private Path output;
 
     public Binary() {
         fileList = new ArrayList<>();
@@ -87,8 +91,38 @@ public class Binary {
         this.fileList.forEach((src)->executor.execute(()->this.objList.add(this.compiler.compile(src,this.flagsContainer,output))));
         executor.shutdown();
         while (!executor.isTerminated());
-        if (this.type==BinaryType.CC_LIB) {
-            this.compiler.archive(this.objList,output.resolve("lib"+this.name+".a"));
+        switch(this.type) {
+            case CC_EXEC:
+                this.compiler.link(this.objList,this.deps,output.resolve(this.name));
+            case CC_LIB:
+                this.compiler.archive(this.objList,output.resolve("lib"+this.name+".a"));
         }
     }
+
+    public void resolveDependencies(Binary[] binaries) {
+        if (this.deps!=null) {
+            this.deps.forEach(dep -> {
+                String depName = dep.getName();
+                Arrays.stream(binaries).forEach(binary -> {
+                    if (depName.equals(binary.getName())) {
+                        String path = binary.getOutput().toString();
+                        dep.setPath(path);
+                        System.out.println("Dependency ["+depName+"->"+path+"] resolved.");
+                    }
+                });
+                if (dep.getPath().isEmpty()) {
+                    System.out.println("Missing dependency: " + depName+".");
+                }
+            });
+        }
+    }
+
+    public void applyOutputPath() {
+        this.output = Paths.get("xbuild/"+this.name);
+    }
+
+    public Path getOutput() {
+        return output;
+    }
 }
+
