@@ -80,13 +80,64 @@ public class GccCompiler extends Compiler {
     }
 
     @Override
-    public void link(List<Path> objs, List<Dependency> deps, Path output) {
+    public void link(List<Path> objs, List<Dependency> deps, List<Path> lfls, Flags flags, Path output) {
         List<String> cmdList = new ArrayList<>();
+        cmdList.add(this.prefix+"g++");
+        cmdList.add("--static");
         objs.forEach(obj->cmdList.add(obj.toString()));
         deps.forEach(dep->{
             cmdList.add("-L"+dep.getPath());
             cmdList.add("-l"+dep.getName());
         });
+        lfls.forEach(lfl->cmdList.add("-T"+lfl.toString()));
+        cmdList.addAll(flags.getLFlags());
+        cmdList.add("-o");
+        cmdList.add(output.toString()+".elf");
         System.out.println(cmdList);
+        ProcessBuilder builder = new ProcessBuilder(cmdList);
+        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        builder.redirectError(ProcessBuilder.Redirect.INHERIT);
+        try {
+            Process process = builder.start();
+            process.waitFor();
+            System.out.println("Linking done!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void output(Binary.OutputType type, Path output){
+        List<String> cmdList = new ArrayList<>();
+        switch(type) {
+            case ELF:
+                break;
+            case HEX:
+                cmdList.add(this.prefix+"objcopy");
+                cmdList.add("-Oihex");
+                cmdList.add(output.toString()+".elf");
+                cmdList.add(output.toString()+".hex");
+                break;
+            case BIN:
+                break;
+            default:
+                System.out.println("Output type not valid.");
+        }
+        System.out.println(cmdList);
+        if (cmdList.size()>0) {
+            ProcessBuilder builder = new ProcessBuilder(cmdList);
+            builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+            builder.redirectError(ProcessBuilder.Redirect.INHERIT);
+            try {
+                Process process = builder.start();
+                process.waitFor();
+                System.out.println("Output file created!");
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

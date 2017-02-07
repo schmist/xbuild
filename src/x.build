@@ -9,9 +9,11 @@
     {
         "type": "CC_EXEC",
         "name": "app",
+        "out": "HEX",
         "srcs": ["vlc_apps/*.{c,cpp}"],
-        "deps": [{"name":"vlc"},{"name":"opencm3_stm32f0", "path":"C:\\Tools\\libopencm3"}],
+        "deps": [{"name":"vlc"},{"name":"opencm3_stm32f0", "path":"C:\\Tools\\libopencm3\\lib"}],
         "incl": ["C:\\Users\\Stefan\\workspace\\vlc_apps\\libvlc\\include","C:\\Tools\\libopencm3\\include"],
+        "lfls": ["vlc_apps/stm32f0.ld"],
         "flags": "std"
     }
 ]

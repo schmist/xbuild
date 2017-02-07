@@ -15,11 +15,14 @@ import java.util.stream.Stream;
  */
 public class Binary {
     public enum BinaryType {CC_EXEC, CC_LIB}
-    private List<String> srcs;
-    private List<String> incl;
-    private List<Dependency> deps;
+    public enum OutputType {ELF, HEX, BIN}
+    private List<String> srcs = new ArrayList<>();
+    private List<String> incl = new ArrayList<>();
+    private List<Dependency> deps = new ArrayList<>();
+    private List<String> lfls = new ArrayList<>();
     private String name;
     private BinaryType type;
+    private OutputType out = OutputType.ELF;
     private List<Path> fileList;
     private List<Path> objList;
     private Compiler compiler;
@@ -93,28 +96,31 @@ public class Binary {
         while (!executor.isTerminated());
         switch(this.type) {
             case CC_EXEC:
-                this.compiler.link(this.objList,this.deps,output.resolve(this.name));
+                List<Path> linkerFiles = new ArrayList<>();
+                this.lfls.forEach(lfl->linkerFiles.add(Paths.get(lfl)));
+                this.compiler.link(this.objList,this.deps,linkerFiles,this.flagsContainer,this.output.resolve(this.name));
+                this.compiler.output(this.out,this.output.resolve(this.name));
+                break;
             case CC_LIB:
                 this.compiler.archive(this.objList,output.resolve("lib"+this.name+".a"));
+                break;
         }
     }
 
     public void resolveDependencies(Binary[] binaries) {
-        if (this.deps!=null) {
-            this.deps.forEach(dep -> {
-                String depName = dep.getName();
-                Arrays.stream(binaries).forEach(binary -> {
-                    if (depName.equals(binary.getName())) {
-                        String path = binary.getOutput().toString();
-                        dep.setPath(path);
-                        System.out.println("Dependency ["+depName+"->"+path+"] resolved.");
-                    }
-                });
-                if (dep.getPath().isEmpty()) {
-                    System.out.println("Missing dependency: " + depName+".");
+        this.deps.forEach(dep -> {
+            String depName = dep.getName();
+            Arrays.stream(binaries).forEach(binary -> {
+                if (depName.equals(binary.getName())) {
+                    String path = binary.getOutput().toString();
+                    dep.setPath(path);
+                    System.out.println("Dependency ["+depName+"->"+path+"] resolved.");
                 }
             });
-        }
+            if (dep.getPath().isEmpty()) {
+                System.out.println("Missing dependency: " + depName+".");
+            }
+        });
     }
 
     public void applyOutputPath() {
