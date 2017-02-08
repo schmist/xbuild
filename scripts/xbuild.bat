@@ -1,0 +1,1 @@
+@java -cp "C:\Users\Stefan\workspace\xbuild\out\production\xbuild;C:\Users\Stefan\workspace\xbuild\lib\gson-2.8.0.jar" Main %*
