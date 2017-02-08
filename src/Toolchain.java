@@ -6,7 +6,7 @@ import java.util.List;
  * Created by Stefan on 11/25/2016.
  */
 public class Toolchain {
-    private String prefix;
+    private String prefix = "";
     private List<String> cpus = new ArrayList<>();
 
     private Toolchain(String cpu) {

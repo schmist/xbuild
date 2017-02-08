@@ -49,7 +49,10 @@ public class GccCompiler extends Compiler {
         try {
             Process process = builder.start();
             process.waitFor();
-            System.out.println("Compiling: "+src+" done!");
+            if (process.exitValue()!=0) {
+                System.out.println("Compiling error. Stopping...");
+                System.exit(5);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -60,6 +63,7 @@ public class GccCompiler extends Compiler {
 
     @Override
     public void archive(List<Path> objs, Path output) {
+        System.out.println("Archiving...");
         List<String> cmdList = new ArrayList<>();
         cmdList.add(this.prefix+"ar");
         cmdList.add("rcs");
@@ -71,7 +75,11 @@ public class GccCompiler extends Compiler {
         try {
             Process process = builder.start();
             process.waitFor();
-            System.out.println("Archiving done!");
+            if (process.exitValue()!=0) {
+                System.out.println("Archiving error. Stopping...");
+                System.exit(6);
+            }
+            System.out.println("Created "+output.toString()+".");
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -81,6 +89,7 @@ public class GccCompiler extends Compiler {
 
     @Override
     public void link(List<Path> objs, List<Dependency> deps, List<Path> lfls, Flags flags, Path output) {
+        System.out.println("Linking...");
         List<String> cmdList = new ArrayList<>();
         cmdList.add(this.prefix+"g++");
         cmdList.add("--static");
@@ -92,15 +101,19 @@ public class GccCompiler extends Compiler {
         lfls.forEach(lfl->cmdList.add("-T"+lfl.toString()));
         cmdList.addAll(flags.getLFlags());
         cmdList.add("-o");
-        cmdList.add(output.toString()+".elf");
-        System.out.println(cmdList);
+        String elfFile = output.toString()+".elf";
+        cmdList.add(elfFile);
         ProcessBuilder builder = new ProcessBuilder(cmdList);
         builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
         builder.redirectError(ProcessBuilder.Redirect.INHERIT);
         try {
             Process process = builder.start();
             process.waitFor();
-            System.out.println("Linking done!");
+            if (process.exitValue()!=0) {
+                System.out.println("Linking error. Stopping...");
+                System.exit(7);
+            }
+            System.out.println("Created "+elfFile+".");
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -110,21 +123,22 @@ public class GccCompiler extends Compiler {
 
     public void output(Binary.OutputType type, Path output){
         List<String> cmdList = new ArrayList<>();
+        String outputFile = "";
         switch(type) {
             case ELF:
                 break;
             case HEX:
                 cmdList.add(this.prefix+"objcopy");
                 cmdList.add("-Oihex");
+                outputFile = output.toString()+".hex";
                 cmdList.add(output.toString()+".elf");
-                cmdList.add(output.toString()+".hex");
+                cmdList.add(outputFile);
                 break;
             case BIN:
                 break;
             default:
                 System.out.println("Output type not valid.");
         }
-        System.out.println(cmdList);
         if (cmdList.size()>0) {
             ProcessBuilder builder = new ProcessBuilder(cmdList);
             builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
@@ -132,7 +146,11 @@ public class GccCompiler extends Compiler {
             try {
                 Process process = builder.start();
                 process.waitFor();
-                System.out.println("Output file created!");
+                if (process.exitValue()!=0) {
+                    System.out.println("Output error. Stopping...");
+                    System.exit(7);
+                }
+                System.out.println("Created "+outputFile+".");
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {

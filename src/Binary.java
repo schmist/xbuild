@@ -26,7 +26,7 @@ public class Binary {
     private List<Path> fileList;
     private List<Path> objList;
     private Compiler compiler;
-    private String flags;
+    private String flags = "";
     private Flags flagsContainer;
     private Path output;
 
@@ -57,6 +57,10 @@ public class Binary {
 
     public void assignFlags(Flags[] flags) {
         this.flagsContainer = Arrays.stream(flags).filter(item->item.getName().equals(this.flags)).findFirst().orElse(null);
+        if (!this.flags.isEmpty() && this.flagsContainer==null) {
+            System.out.println("Specified flags could not be found.");
+            System.exit(4);
+        }
         this.prepareIncludes();
     }
 
@@ -77,16 +81,19 @@ public class Binary {
         }
         this.incl.forEach(item->{
             Path include = Paths.get(item);
+            if (!include.isAbsolute()) {
+                include = Main.workingDir.resolve(include);
+            }
             this.flagsContainer.addCFlag("-I"+include.toString());
         });
     }
 
     public void compile(ExecutorService executor) {
+        System.out.println("Building ["+this.name+"]:");
         this.findFiles();
-        System.out.println(this.fileList);
         if (!Files.isDirectory(output)) {
             try {
-                Files.createDirectory(output);
+                Files.createDirectories(output);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -129,6 +136,10 @@ public class Binary {
 
     public Path getOutput() {
         return output;
+    }
+
+    public List<Dependency> getDeps() {
+        return deps;
     }
 }
 
